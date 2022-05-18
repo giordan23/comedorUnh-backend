@@ -1,7 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 
-const userRoutes = require("../routes/userRoutes");
+const usuarioRoutes = require("../routes/usuarioRoutes");
+const pedidoRoutes = require("../routes/pedidoRoutes");
+const estudianteRoutes = require("../routes/estudianteRoutes");
 
 const db = require("../database/dbConnection");
 
@@ -12,6 +14,8 @@ class Server {
 
 		//routes
 		this.usuariosRoutePath = "/api/usuarios";
+		this.pedidoRoutesPath = "/api/pedidos"
+		this.estudianteRoutesPath = "/api/estudiantes"
 
 		// Middlewares
 		this.dbConnection();
@@ -40,7 +44,9 @@ class Server {
 	}
 
 	routes() {
-		this.app.use(this.usuariosRoutePath, userRoutes);
+		this.app.use(this.usuariosRoutePath, usuarioRoutes);
+		this.app.use(this.pedidoRoutesPath, pedidoRoutes);
+		this.app.use(this.estudianteRoutesPath, estudianteRoutes);
 	}
 
 	listen() {
