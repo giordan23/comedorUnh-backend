@@ -1,11 +1,13 @@
-const {response} = require('express')
+const { response } = require("express");
 
-const usuariosGet =(req, res = response) => {
-    res.json({
-        msg: 'get API - Controlador'
-    });
-}
+const Usuario = require("../models/usuario");
+
+const getUsuarios = async (req, res = response) => {
+	const usuarios = await Usuario.findAll();
+
+	res.json(usuarios);
+};
 
 module.exports = {
-    usuariosGet
-}
+	getUsuarios,
+};
