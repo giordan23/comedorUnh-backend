@@ -9,8 +9,8 @@ const getEstudiantes = async (req, res = response) => {
 };
 
 const postEstudiante = async (req, res = response) => {
-	const body = req.body
-	const estudiante = new estudiante(body)
+	const {dni, codigo_matricula, nombre, status} = req.body
+	const estudiante = new Estudiante({dni, codigo_matricula, nombre, status})
 	await estudiante.save();
 
 	res.json({

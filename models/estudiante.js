@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const db = require("../database/dbConnection");
 
-const Estudiante = db.define("Usuario", {
+const Estudiante = db.define("Estudiante", {
 	nombre: {
 		type: DataTypes.STRING,
 	},
@@ -10,6 +10,7 @@ const Estudiante = db.define("Usuario", {
 	},
 	dni: {
 		type: DataTypes.STRING,
+		primaryKey: true
 	},
 	codigo_matricula: {
 		type: DataTypes.STRING,
