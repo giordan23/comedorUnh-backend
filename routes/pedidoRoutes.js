@@ -9,9 +9,6 @@ const router = Router();
 
 router.get("/", getPedidos);
 
-router.post('/', [
-    check('turno', 'El campo username es obligatorio').not().isEmpty(),
-    validarCampos
-], postPedido)
+router.post('/', postPedido)
 
 module.exports = router;
