@@ -147,7 +147,7 @@ const postPedido = async (req, res = response) => {
 	//Establecer turno
 
 	let turnoPedido = '';
-	const horarioDesayunoInicio = 6;2017141007
+	const horarioDesayunoInicio = 6;
 
 	const horarioDesayunoFin = 8;
 
