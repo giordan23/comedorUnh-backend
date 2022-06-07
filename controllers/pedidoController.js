@@ -2,11 +2,12 @@ const { response } = require("express");
 const schedule = require('node-schedule')
 const { requestPrint } = require("../print/bxlcommon");
 const { setPosId, checkPrinterStatus, getPosData, printText, cutPaper } = require('../print/pos');
-const format = require('date-fns/format')
 const es = require('date-fns/locale/es')
 
 const Estudiante = require("../models/estudiante");
 const Pedido = require("../models/pedido");
+
+const { getDay, format } = require('date-fns');
 
 //Start
 
@@ -24,10 +25,22 @@ schedule.scheduleJob('0 16 * * *', () => {
 	pedidosDisponibles = 600;
 })
 
+
+// Obtener pedidos
 const getPedidos = async (req, res = response) => {
-	const pedido = await Pedido.findAll();
-	res.json(pedido);
+	
+	const [total, pedido] = await Promise.all([
+		Pedido.count(),
+		Pedido.findAll()
+	])
+
+	res.json({
+		total,
+		pedido,
+	});
 };
+
+// Crear pedido
 
 const postPedido = async (req, res = response) => {
 
@@ -37,9 +50,16 @@ const postPedido = async (req, res = response) => {
 	const datePedido = new Date(Date.now());
 	const horaPedido = datePedido.getHours();
 	const fechaPedido = datePedido.toDateString();
+	const diaPedido = getDay(datePedido); //6 
+
+	// console.log(`DIA DEL PEDIDO es: ${diaPedido}`);
+
+	if (diaPedido == 0 || diaPedido == 6) {
+		return res.status(402).json({msg: "No atendemos Sabados o domingos"})
+	}
 
 	//funcion registrar pedido
-	const registrarPedido = async (turno, id_estudiante) => {
+	const registrarPedido = async (turno, id_estudiante, idClient) => {
 
 		// console.log('desde registrarPedido');
 
@@ -96,10 +116,16 @@ const postPedido = async (req, res = response) => {
 
 			// console.log(strSubmit);
 			issueID++;
-			requestPrint('Printer1', strSubmit, () => {
-				// console.log('exito desde impresora');
-			})
-
+			if (idClient == 1) {
+				requestPrint('Printer1', strSubmit, () => {
+					console.log('exito desde impresora');
+				})
+			}
+			if (idClient == 2) {
+				requestPrint('Printer2', strSubmit, () => {
+					console.log('exito desde impresora 2');
+				})
+			}
 			//respuesta final
 			return res.json({
 				msg: "Pedido creado",
@@ -118,7 +144,7 @@ const postPedido = async (req, res = response) => {
 		return res.status(400).json({ msg: 'Pedidos disponibles = 0' })
 	}
 
-	const { id_estudiante } = req.body;
+	const { id_estudiante, idClient } = req.body;
 	// console.log(id_estudiante);
 
 	const regExp = /^[0-9]+$/
@@ -148,11 +174,10 @@ const postPedido = async (req, res = response) => {
 
 	let turnoPedido = '';
 	const horarioDesayunoInicio = 6;
-
 	const horarioDesayunoFin = 8;
 
 	const horarioAlmuerzoInicio = 11;
-	const horarioAlrmuerzoFin = 12;
+	const horarioAlrmuerzoFin = 13;
 
 	const horarioCenaInicio = 17;
 	const horarioCenaFin = 19;
@@ -190,7 +215,7 @@ const postPedido = async (req, res = response) => {
 
 	if (!ultimoPedido) {
 		// console.log('primera vez ' + fecha_ultimoPedido);
-		return await registrarPedido(pedidoActual.turno, pedidoActual.id_estudiante)
+		return await registrarPedido(pedidoActual.turno, pedidoActual.id_estudiante, idClient)
 	}
 
 	// //falsedev
@@ -213,7 +238,7 @@ const postPedido = async (req, res = response) => {
 	}
 
 	console.log('135 - Registrar pedido que no es primera vez');
-	await registrarPedido(pedidoActual.turno, pedidoActual.id_estudiante)
+	await registrarPedido(pedidoActual.turno, pedidoActual.id_estudiante, idClient)
 
 }
 

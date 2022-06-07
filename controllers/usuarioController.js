@@ -22,17 +22,16 @@ const postUsuario = async (req, res = response) => {
 
 
 	const { username, nombre, password, status } = req.body
-	const usuario = new Usuario({ username, nombre, password, status })
-
+	
 	//verificar si username existe
-	const usernameExiste = await Usuario.findOne({ username })
+	const usernameExiste = await Usuario.findOne({ where: { username } })
 	if (usernameExiste) {
 		return res.status(400).json({
 			msg: `El usuario ${username} ya esta registrado`
 		})
 	}
-
-
+	
+	const usuario = new Usuario({ username, nombre, password, status })
 	//encriptar password
 	const salt = bcryptjs.genSaltSync()
 	usuario.password = bcryptjs.hashSync(password, salt)
